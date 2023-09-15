@@ -3,13 +3,6 @@
 #include <iostream>
 #include <stdlib.h>
 
-#if defined(_WIN32)
-#include <windows.h>
-HANDLE g_hevFrameAdvance = INVALID_HANDLE_VALUE;
-#else
-// TODO linux-based interprocess event mechanism here
-#endif
-
 #if defined(__linux) || defined(_WIN32)
 #include <GL/glew.h>
 #endif
@@ -46,11 +39,13 @@ namespace Avi
 class Player
 {
   public:
+    GLFWwindow* win = NULL;
+
     Player() = default;
     Player(std::string& fileName, float& freq)
     {
         std::size_t found = fileName.find_last_of(".");
-        std::string str = fileName.substr(found + 1, fileName.size());
+        std::string str   = fileName.substr(found + 1, fileName.size());
         toLower(str);
         if (!(str.compare("avi") == 0 || str.compare("tavi") == 0))
         {
@@ -71,7 +66,6 @@ class Player
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        GLFWwindow* win = NULL;
         int         w   = 1516;
         int         h   = 853;
 
@@ -82,11 +76,6 @@ class Player
         // Get cursor coördinates relative to the window's top-left corner.
         double relativeCursorX = 0.0;
         double relativeCursorY = 0.0;
-
-#if 0
-                w = 320;
-                h = 240;
-#endif
 
         win = glfwCreateWindow(w, h, "OpenGL Avi Player", NULL, NULL);
         if (!win)
@@ -134,26 +123,7 @@ class Player
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-#if defined(_WIN32)
-            DWORD rc = WAIT_TIMEOUT;
-            if (g_hevFrameAdvance != INVALID_HANDLE_VALUE)
-            {
-                rc = ::WaitForSingleObject(g_hevFrameAdvance, 0);
-                if (rc == WAIT_OBJECT_0)
-                {
-                    ::ResetEvent(g_hevFrameAdvance);
-                }
-            }
-            else
-            {
-                rc = WAIT_OBJECT_0;
-            }
-            if (rc == WAIT_OBJECT_0)
-
-#endif
-
-                decoder.readFrame();
-
+            decoder.readFrame();
             player.draw(0, 0, w, h);
 
             glfwSwapBuffers(win);
@@ -164,7 +134,7 @@ class Player
 
         ::Sleep(5000);
     }
-    ~Player(){};
+    ~Player() { win = NULL; };
 };
 } // namespace Avi
 } // namespace OpenGL

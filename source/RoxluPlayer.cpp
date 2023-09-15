@@ -23,6 +23,23 @@ RoxluPlayer::RoxluPlayer()
 {
 }
 
+RoxluPlayer::~RoxluPlayer()
+{
+    // Clean-up the graphics resources
+    cleanupFrame(y_tex);
+    cleanupFrame(u_tex);
+    cleanupFrame(v_tex);
+
+    glDeleteShader(vert);
+    glDeleteShader(frag);
+    glDeleteProgram(prog);
+    glDeleteVertexArrays(1, &vao);
+
+    y_pixels = NULL;
+    u_pixels = NULL;
+    v_pixels = NULL;
+}
+
 void RoxluPlayer::draw(int x, int y, int w, int h)
 {
     if (!textures_created)
@@ -206,4 +223,10 @@ void RoxluPlayer::setVPixels(uint8_t* pixels, int stride)
     glBindTexture(GL_TEXTURE_2D, v_tex);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, vid_w / 2, vid_h / 2, GL_RED, GL_UNSIGNED_BYTE, pixels);
+}
+
+void RoxluPlayer::cleanupFrame(GLuint& imageTexture)
+{
+    // Delete the texture
+    glDeleteTextures(1, &imageTexture);
 }

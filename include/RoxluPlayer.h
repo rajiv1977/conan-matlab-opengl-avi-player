@@ -91,10 +91,12 @@ class RoxluPlayer
 
   public:
     RoxluPlayer();
+    ~RoxluPlayer();
     bool setup(int w, int h);
     void setYPixels(uint8_t* pixels, int stride);
     void setUPixels(uint8_t* pixels, int stride);
     void setVPixels(uint8_t* pixels, int stride);
+    void cleanupFrame(GLuint& imageTexture);
     void draw(int x, int y, int w = 0, int h = 0);
     void resize(int winW, int winH);
 
